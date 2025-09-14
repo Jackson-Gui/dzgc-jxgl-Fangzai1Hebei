@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>土木工程学院研究生论文数据</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --success-color: #27ae60;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .description {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 12px 20px 12px 40px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #777;
+        }
+        
+        .filter-select {
+            flex: 0 0 auto;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        select {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            background-color: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        
+        select:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+        }
+        
+        .table-container {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        thead {
+            background: linear-gradient(135deg, var(--primary-color), #3a546b);
+            color: white;
+        }
+        
+        th {
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            position: relative;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        th:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        th i {
+            margin-left: 5px;
+            font-size: 0.8rem;
+        }
+        
+        tbody tr {
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s;
+        }
+        
+        tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        td {
+            padding: 14px 16px;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .pagination button {
+            padding: 10px 16px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .pagination button:hover:not(:disabled) {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        .pagination button.active {
+            background-color: var(--secondary-color);
+            color: white;
+            border-color: var(--secondary-color);
+        }
+        
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .entries-info {
+            text-align: center;
+            color: #666;
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+            }
+            
+            th, td {
+                padding: 10px 12px;
+            }
+            
+            .table-container {
+                overflow-x: auto;
+            }
+            
+            table {
+                min-width: 800px;
+            }
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="controls">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-input" placeholder="搜索论文题目、姓名、导师...">
+            </div>
+            
+            <div class="filter-select">
+                <span>筛选:</span>
+                <select id="major-filter">
+                    <option value="">全部专业</option>
+                    <option value="资源与环境">资源与环境</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <table id="data-table">
+                <thead>
+                    <tr>
+                        <th data-sort="number">序号 <i class="fas fa-sort"></i></th>
+                        <th data-sort="title">论文题目 <i class="fas fa-sort"></i></th>
+                        <th data-sort="id">学号 <i class="fas fa-sort"></i></th>
+                        <th data-sort="name">姓名 <i class="fas fa-sort"></i></th>
+                        <th data-sort="college">学院 <i class="fas fa-sort"></i></th>
+                        <th data-sort="major">二级学科 <i class="fas fa-sort"></i></th>
+                        <th data-sort="advisor">导师姓名 <i class="fas fa-sort"></i></th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    <!-- 数据将通过JavaScript填充 -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="pagination" id="pagination">
+            <button id="prev-btn"><i class="fas fa-chevron-left"></i> 上一页</button>
+            <button class="active">1</button>
+            <button>2</button>
+            <button>3</button>
+            <button id="next-btn">下一页 <i class="fas fa-chevron-right"></i></button>
+        </div>
+        
+        <div class="entries-info">
+            显示 <span id="start-entry">1</span> 至 <span id="end-entry">10</span> 项，共 <span id="total-entries">30</span> 项
+        </div>
+    </div>
+
+    <script>
+        // 示例数据
+        const tableData = [
+            { number: 1, title: "基于试验数据的框架支撑结构易损性函数贝叶斯更新方法研究", id: "22661225", name: "张敏捷", college: "土木工程学院", major: "资源与环境", advisor: "陈永盛" },
+            { number: 2, title: "基于氯离子侵蚀的海洋环境下港口码头耐久性寿命预测", id: "22661226", name: "赵一博", college: "土木工程学院", major: "资源与环境", advisor: "刘红彪" },
+            { number: 3, title: "ueBIM房建工程族参数化研究", id: "22661227", name: "张智成", college: "土木工程学院", major: "资源与环境", advisor: "张立杰" },
+            { number: 4, title: "基于改进谱烈度的钢结构损伤方法研究", id: "22661228", name: "沈振龙", college: "土木工程学院", major: "资源与环境", advisor: "姚新强" },
+            { number: 5, title: "硫铝酸盐水泥基材料对垃圾焚烧飞灰中重金属的固化作用研究", id: "22661229", name: "董发鑫", college: "土木工程学院", major: "资源与环境", advisor: "汪峻峰" },
+            { number: 6, title: "地震动山体地形效应对边坡稳定性影响研究", id: "22661230", name: "熊文", college: "土木工程学院", major: "资源与环境", advisor: "王伟" },
+            { number: 7, title: "地震作用下某尾矿坝动力稳定性研究", id: "22661231", name: "方玲慧", college: "土木工程学院", major: "资源与环境", advisor: "鲁明星" },
+            { number: 8, title: "新型高性能植物纤维墙体填充材料的制备与性能研究", id: "22661232", name: "杨艳弟", college: "土木工程学院", major: "资源与环境", advisor: "左彦峰" },
+            { number: 9, title: "多层房屋抗震加固新方法研究", id: "22661233", name: "王传虎", college: "土木工程学院", major: "资源与环境", advisor: "周洋" },
+            { number: 10, title: "区域与城市建筑抗震性能分析与震害推演系统构建", id: "22661234", name: "郑曜育", college: "土木工程学院", major: "资源与环境", advisor: "周洋" },
+            { number: 11, title: "多元固废协同改性花岗岩锯泥的路用性能优化研究", id: "22661235", name: "徐子凡", college: "土木工程学院", major: "资源与环境", advisor: "冷发光" },
+            { number: 12, title: "国际电梯应急管理体制、法制和机制的研究", id: "22661236", name: "闫朕", college: "土木工程学院", major: "资源与环境", advisor: "尚春静" },
+            { number: 13, title: "考虑填充墙影响的外廊式RC框架结构地震易损性分析", id: "22661237", name: "张学坦", college: "土木工程学院", major: "资源与环境", advisor: "周洋" },
+            { number: 14, title: "考虑框架柱影响的RC框架结构抗震倒塌性能模拟研究", id: "22661238", name: "王维", college: "土木工程学院", major: "资源与环境", advisor: "李正" },
+            { number: 15, title: "考虑智能手机不同摆放形式的桥梁健康监测方法研究", id: "22661239", name: "王杰", college: "土木工程学院", major: "资源与环境", advisor: "王立新" },
+            { number: 16, title: "地质灾害易发区管土交互耦合失效机理研究", id: "22661240", name: "裴鹏程", college: "土木工程学院", major: "资源与环境", advisor: "黄帅" },
+            { number: 17, title: "汛后中小跨径公路桥梁快速检查评估技术研究", id: "22661241", name: "金宣吉", college: "土木工程学院", major: "资源与环境", advisor: "李鹏飞" },
+            { number: 18, title: "水硬性石灰的制备、性能及应用研究", id: "22661242", name: "苏泓霖", college: "土木工程学院", major: "资源与环境", advisor: "左彦峰" },
+            { number: 19, title: "某城市抗震韧性三度空间系统动力学模型评估", id: "22661243", name: "郑文文", college: "土木工程学院", major: "资源与环境", advisor: "刘敬严" },
+            { number: 20, title: "跨断层在役油气（腐蚀）管道错动响应有限元分析", id: "22661244", name: "蒙涛涛", college: "土木工程学院", major: "资源与环境", advisor: "李赢" },
+            { number: 21, title: "某底商多层房屋承重构件抗剪强度研究", id: "22661245", name: "闫程", college: "土木工程学院", major: "资源与环境", advisor: "郭迅" },
+            { number: 22, title: "泸定地震中典型多层房屋震害剖析", id: "22661246", name: "刘雪纯", college: "土木工程学院", major: "资源与环境", advisor: "郭迅" },
+            { number: 23, title: "考虑桩-土-结构相互作用的大底盘上塔层间隔震结构动力响应研究", id: "22661247", name: "武斌", college: "土木工程学院", major: "资源与环境", advisor: "姚新强" },
+            { number: 24, title: "外廊式多层房屋承重构件内力分配实测研究", id: "22661248", name: "马天贇", college: "土木工程学院", major: "资源与环境", advisor: "郭迅" },
+            { number: 25, title: "地质聚合物—固废骨料砌块的制备与性能研究", id: "22661249", name: "陶俊旭", college: "土木工程学院", major: "资源与环境", advisor: "左彦峰" },
+            { number: 26, title: "不规则桥梁排架抗震性能研究", id: "22661250", name: "陈彦竹", college: "土木工程学院", major: "资源与环境", advisor: "孙治国" },
+            { number: 27, title: "液化倾斜场地简支梁桥地震反应分析", id: "22661251", name: "佟帆", college: "土木工程学院", major: "资源与环境", advisor: "孙治国" },
+            { number: 28, title: "基于复合墙体地基的跨断层框架结构抗断裂试验分析", id: "22661252", name: "屈世航", college: "土木工程学院", major: "资源与环境", advisor: "田静" },
+            { number: 29, title: "高墩大跨预应力混凝土矮塔斜拉桥结构体系研究", id: "22661253", name: "张浩成", college: "土木工程学院", major: "资源与环境", advisor: "卓为顶" },
+            { number: 30, title: "基于多详细度的区域中桥跨径梁桥震害评估研究", id: "22661254", name: "杨振中", college: "土木工程学院", major: "资源与环境", advisor: "韦韩" }
+        ];
+
+        // 初始化变量
+        let currentPage = 1;
+        const entriesPerPage = 10;
+        let filteredData = [...tableData];
+        let sortColumn = 'number';
+        let sortDirection = 'asc';
+
+        // DOM 元素
+        const tableBody = document.getElementById('table-body');
+        const searchInput = document.getElementById('search-input');
+        const majorFilter = document.getElementById('major-filter');
+        const pagination = document.getElementById('pagination');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const startEntry = document.getElementById('start-entry');
+        const endEntry = document.getElementById('end-entry');
+        const totalEntries = document.getElementById('total-entries');
+
+        // 初始化表格
+        function initTable() {
+            renderTable();
+            setupEventListeners();
+            updatePagination();
+            updateEntriesInfo();
+        }
+
+        // 渲染表格
+        function renderTable() {
+            tableBody.innerHTML = '';
+            
+            const startIndex = (currentPage - 1) * entriesPerPage;
+            const endIndex = Math.min(startIndex + entriesPerPage, filteredData.length);
+            
+            for (let i = startIndex; i < endIndex; i++) {
+                const row = document.createElement('tr');
+                const item = filteredData[i];
+                
+                row.innerHTML = `
+                    <td>${item.number}</td>
+                    <td>${item.title}</td>
+                    <td>${item.id}</td>
+                    <td>${item.name}</td>
+                    <td>${item.college}</td>
+                    <td>${item.major}</td>
+                    <td>${item.advisor}</td>
+                `;
+                
+                tableBody.appendChild(row);
+            }
+        }
+
+        // 设置事件监听器
+        function setupEventListeners() {
+            // 搜索框输入事件
+            searchInput.addEventListener('input', () => {
+                filterData();
+                currentPage = 1;
+                renderTable();
+                updatePagination();
+                updateEntriesInfo();
+            });
+            
+            // 筛选器变化事件
+            
+            majorFilter.addEventListener('change', () => {
+                filterData();
+                currentPage = 1;
+                renderTable();
+                updatePagination();
+                updateEntriesInfo();
+            });
+            
+            // 表头排序事件
+            document.querySelectorAll('th[data-sort]').forEach(th => {
+                th.addEventListener('click', () => {
+                    const column = th.getAttribute('data-sort');
+                    
+                    if (sortColumn === column) {
+                        sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        sortColumn = column;
+                        sortDirection = 'asc';
+                    }
+                    
+                    sortData();
+                    renderTable();
+                    
+                    // 更新排序指示器
+                    document.querySelectorAll('th i').forEach(icon => {
+                        icon.className = 'fas fa-sort';
+                    });
+                    
+                    const icon = th.querySelector('i');
+                    icon.className = `fas fa-sort-${sortDirection === 'asc' ? 'up' : 'down'}`;
+                });
+            });
+            
+            // 分页按钮事件
+            prevBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderTable();
+                    updatePagination();
+                    updateEntriesInfo();
+                }
+            });
+            
+            nextBtn.addEventListener('click', () => {
+                if (currentPage < Math.ceil(filteredData.length / entriesPerPage)) {
+                    currentPage++;
+                    renderTable();
+                    updatePagination();
+                    updateEntriesInfo();
+                }
+            });
+            
+            // 页码按钮事件
+            pagination.querySelectorAll('button:not(#prev-btn):not(#next-btn)').forEach((btn, index) => {
+                btn.addEventListener('click', () => {
+                    currentPage = index + 1;
+                    renderTable();
+                    updatePagination();
+                    updateEntriesInfo();
+                });
+            });
+        }
+
+        // 筛选数据
+        function filterData() {
+            const searchText = searchInput.value.toLowerCase();
+            const majorValue = majorFilter.value;
+            
+            filteredData = tableData.filter(item => {
+                const matchesSearch = 
+                    item.title.toLowerCase().includes(searchText) ||
+                    item.name.toLowerCase().includes(searchText) ||
+                    item.advisor.toLowerCase().includes(searchText) ||
+                    item.id.toLowerCase().includes(searchText);
+                
+                const matchesMajor = majorValue === '' || item.major === majorValue;
+                
+                return matchesSearch && matchesMajor;
+            });
+            
+            sortData();
+        }
+
+        // 排序数据
+        function sortData() {
+            filteredData.sort((a, b) => {
+                let valueA, valueB;
+                
+                if (sortColumn === 'number') {
+                    valueA = a.number;
+                    valueB = b.number;
+                } else if (sortColumn === 'title') {
+                    valueA = a.title;
+                    valueB = b.title;
+                } else if (sortColumn === 'id') {
+                    valueA = a.id;
+                    valueB = b.id;
+                } else if (sortColumn === 'name') {
+                    valueA = a.name;
+                    valueB = b.name;
+                } else if (sortColumn === 'college') {
+                    valueA = a.college;
+                    valueB = b.college;
+                } else if (sortColumn === 'major') {
+                    valueA = a.major;
+                    valueB = b.major;
+                } else if (sortColumn === 'advisor') {
+                    valueA = a.advisor;
+                    valueB = b.advisor;
+                }
+                
+                if (typeof valueA === 'string') {
+                    return sortDirection === 'asc' 
+                        ? valueA.localeCompare(valueB, 'zh-CN') 
+                        : valueB.localeCompare(valueA, 'zh-CN');
+                } else {
+                    return sortDirection === 'asc' ? valueA - valueB : valueB - valueA;
+                }
+            });
+        }
+
+        // 更新分页
+        function updatePagination() {
+            const pageCount = Math.ceil(filteredData.length / entriesPerPage);
+            const pageButtons = pagination.querySelectorAll('button:not(#prev-btn):not(#next-btn)');
+            
+            // 移除多余的页码按钮
+            if (pageButtons.length > pageCount) {
+                for (let i = pageButtons.length - 1; i >= pageCount; i--) {
+                    pagination.removeChild(pageButtons[i]);
+                }
+            }
+            // 添加缺失的页码按钮
+            else if (pageButtons.length < pageCount) {
+                for (let i = pageButtons.length + 1; i <= pageCount; i++) {
+                    const btn = document.createElement('button');
+                    btn.textContent = i;
+                    btn.addEventListener('click', () => {
+                        currentPage = i;
+                        renderTable();
+                        updatePagination();
+                        updateEntriesInfo();
+                    });
+                    pagination.insertBefore(btn, nextBtn);
+                }
+            }
+            
+            // 更新活动页码按钮
+            pageButtons.forEach((btn, index) => {
+                if (index + 1 === currentPage) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            // 更新上一页/下一页按钮状态
+            prevBtn.disabled = currentPage === 1;
+            nextBtn.disabled = currentPage === pageCount;
+        }
+
+        // 更新条目信息
+        function updateEntriesInfo() {
+            const start = (currentPage - 1) * entriesPerPage + 1;
+            const end = Math.min(currentPage * entriesPerPage, filteredData.length);
+            
+            startEntry.textContent = start;
+            endEntry.textContent = end;
+            totalEntries.textContent = filteredData.length;
+        }
+
+        // 初始化表格
+        window.addEventListener('DOMContentLoaded', initTable);
+    </script>
+</body>
+</html>

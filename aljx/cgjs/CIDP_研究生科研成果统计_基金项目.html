@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>研究生科研成果统计</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-dark: #0a1930;
+            --primary-medium: #152642;
+            --primary-light: #1e3659;
+            --accent-blue: #2a8bf2;
+            --accent-teal: #20c997;
+            --text-light: #c8cdd6;
+            --text-muted: #c8cdd6;
+            --table-text: #000000;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary-medium));
+            color: var(--text-light);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar {
+            background-color: rgba(10, 25, 48, 0.9);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+        }
+        
+        .card {
+            background-color: var(--primary-light);
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            color: var(--text-light);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+        
+        .table-container {
+            background-color: var(--primary-light);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .table {
+            color: var(--table-text) !important;
+            margin-bottom: 0;
+            font-size: 0.9rem;
+        }
+        
+        .table thead th {
+            background-color: var(--primary-medium);
+            border-bottom: 2px solid var(--accent-blue);
+            font-weight: 600;
+            padding: 1rem;
+            color: var(--text-light);
+        }
+        
+        .table tbody tr {
+            transition: background-color 0.2s ease;
+            color: var(--table-text) !important;
+        }
+        
+        .table tbody tr:hover {
+            background-color: rgba(42, 139, 242, 0.1);
+        }
+        
+        .table tbody td {
+            padding: 0.75rem;
+            vertical-align: middle;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--table-text) !important;
+        }
+        
+        .btn-primary {
+            background-color: var(--accent-blue);
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: #1a7ad9;
+            transform: translateY(-2px);
+        }
+        
+        .form-control, .form-select {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-light);
+            border-radius: 8px;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 0.25rem rgba(42, 139, 242, 0.25);
+            color: var(--text-light);
+        }
+        
+        .form-label {
+            color: var(--text-light);
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stats-card {
+            text-align: center;
+            padding: 1.5rem;
+        }
+        
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent-teal);
+            margin-bottom: 0.5rem;
+        }
+        
+        .stats-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .filter-section {
+            background-color: var(--primary-medium);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .section-title {
+            position: relative;
+            padding-bottom: 0.75rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background-color: var(--accent-blue);
+            border-radius: 3px;
+        }
+        
+        .year-badge {
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-teal));
+            color: white;
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .funding-badge {
+            background-color: rgba(32, 201, 151, 0.2);
+            color: var(--accent-teal);
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .card-header {
+            background-color: var(--primary-medium);
+            color: var(--text-light);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .card-footer {
+            background-color: var(--primary-medium);
+            color: var(--text-light);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .page-link {
+            background-color: var(--primary-light);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+        }
+        
+        .page-item.active .page-link {
+            background-color: var(--accent-blue);
+            border-color: var(--accent-blue);
+        }
+        
+        .page-item.disabled .page-link {
+            background-color: var(--primary-medium);
+            color: var(--text-muted);
+        }
+        
+        .btn-outline-light {
+            color: var(--text-light);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-outline-light:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+            color: var(--text-light);
+        }
+        
+        ::placeholder {
+            color: var(--text-muted) !important;
+            opacity: 1;
+        }
+        
+        .subject-badge {
+            background-color: rgba(42, 139, 242, 0.2);
+            color: var(--accent-blue);
+            padding: 0.35rem 0.5rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .table-responsive {
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <!-- 筛选区域 -->
+        <div class="card filter-section">
+            <div class="row">
+                <div class="col-md-2 mb-3">
+                    <label for="yearFilter" class="form-label">年份</label>
+                    <select class="form-select" id="yearFilter">
+                        <option value="">全部年份</option>
+                    </select>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label for="advisorFilter" class="form-label">导师</label>
+                    <select class="form-select" id="advisorFilter">
+                        <option value="">全部导师</option>
+                    </select>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label for="subjectFilter" class="form-label">所属学科</label>
+                    <select class="form-select" id="subjectFilter">
+                        <option value="">全部学科</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2 mb-3">
+                    <label for="fundingFilter" class="form-label">经费范围</label>
+                    <select class="form-select" id="fundingFilter">
+                        <option value="">全部范围</option>
+                        <option value="0-1">1万元以下</option>
+                        <option value="1-2">1-2万元</option>
+                        <option value="2-5">2万元以上</option>
+                    </select>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label for="searchInput" class="form-label">项目搜索</label>
+                    <input type="text" class="form-control" id="searchInput" placeholder="搜索项目名称、负责人或关键词...">
+                </div>
+                <div class="col-md-2 mb-3 d-flex align-items-end">
+                    <button class="btn btn-primary w-100" id="resetFilters">
+                        <i class="fas fa-sync-alt me-2"></i>重置
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 数据表格 -->
+        <div class="card table-container">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="m-0">科研成果列表</h5>
+                <div>
+                    <span class="me-2" id="showing-text">显示 0 个项目</span>
+                    <button class="btn btn-sm btn-outline-light" id="exportData">
+                        <i class="fas fa-download me-1"></i>导出数据
+                    </button>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover" id="projectsTable">
+                    <thead>
+                        <tr>
+                            <th>年份</th>
+                            <th>项目编号</th>
+                            <th>项目名称</th>
+                            <th>负责人</th>
+                            <th>学号</th>
+                            <th>指导老师</th>
+                            <th>经费(万元)</th>
+                            <th>所属学科</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- 数据将通过JavaScript动态填充 -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer d-flex justify-content-between align-items-center">
+                <div>
+                    <span>每页显示</span>
+                    <select class="form-select form-select-sm d-inline-block w-auto mx-2" id="itemsPerPage">
+                        <option value="10">10</option>
+                        <option value="25" selected>25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                    <span>个项目</span>
+                </div>
+                <nav>
+                    <ul class="pagination mb-0" id="pagination">
+                        <!-- 分页将通过JavaScript动态生成 -->
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 将Excel数据转换为JSON格式
+        const researchData = [
+            // 2025年项目
+            { year: 2025, projectId: "CXZZSS2025144", projectName: "近断层多点多维全非平稳随机地震动降维模拟及工程应用", principal: "陈鑫", studentId: "", advisor: "刘子心", funding: 2, subject: "土木工程" },
+            { year: 2025, projectId: "ZY20250314", projectName: "冲刷与氯盐侵蚀联合作用下考虑液化场地群桩-桥墩抗震性能研究", principal: "唐霞", studentId: "", advisor: "孙治国", funding: 2, subject: "土木工程" },
+            { year: 2025, projectId: "ZY20250315", projectName: "考虑填充墙影响的CFRP加固RC框架结构抗震性能研究", principal: "周学正", studentId: "", advisor: "周洋", funding: 1, subject: "土木工程" },
+            { year: 2025, projectId: "ZY20250316", projectName: "预埋分离式型钢连接装配式桥墩抗震性能研究", principal: "黄攀", studentId: "", advisor: "岳茂光", funding: 1, subject: "土木工程" },
+            { year: 2025, projectId: "ZY20250317", projectName: "基于岭回归与Holt winters法对在役桥梁的性能预测算法研究", principal: "曹星宇", studentId: "", advisor: "桂成中", funding: 1, subject: "土木工程" },
+            { year: 2025, projectId: "ZY20250318", projectName: "基于BP神经网络的桥墩等效塑性铰长度预测模型", principal: "刘云华", studentId: "", advisor: "", funding: 1, subject: "土木工程" },
+
+            // 2024年项目
+            { year: 2024, projectId: "", projectName: "液化倾斜场地简支梁桥地震破坏机理研究", principal: "佟帆", studentId: "", advisor: "孙治国", funding: 2, subject: "土木工程" },
+            { year: 2024, projectId: "", projectName: "不规则桥梁排架抗震性能研究", principal: "陈彦竹", studentId: "", advisor: "孙治国", funding: 2, subject: "土木工程" },
+            { year: 2024, projectId: "", projectName: "实测结构地震响应对致灾机理的启示", principal: "刘雪纯", studentId: "", advisor: "郭迅", funding: 2, subject: "土木工程" },
+            { year: 2024, projectId: "", projectName: "基于'变形饱和'理论的多层RC框架-填充墙结构体系地震破坏机理研究", principal: "张学坦", studentId: "", advisor: "周洋", funding: 2, subject: "土木工程" },
+            { year: 2024, projectId: "", projectName: "翼墙加固的框架-砌体混杂结构抗震性能的研究", principal: "王传虎", studentId: "", advisor: "郭迅", funding: 2, subject: "土木工程" },
+            { year: 2024, projectId: "", projectName: "不同填充墙材料对RC框架结构的抗震性能影响", principal: "闫程", studentId: "", advisor: "郭迅", funding: 1, subject: "土木工程" },
+            { year: 2024, projectId: "", projectName: "地质聚合物固废骨料砌块的制备与性能研究", principal: "陶俊旭", studentId: "", advisor: "左彦峰", funding: 1, subject: "土木工程" },
+            { year: 2024, projectId: "", projectName: "基于三度空间理论的灾害韧性评估", principal: "郑文文", studentId: "", advisor: "刘敬严", funding: 1, subject: "土木工程" },
+            { year: 2024, projectId: "", projectName: "地震与同震滑坡作用下管道破坏机理及韧性防控方法研究", principal: "裴鹏程", studentId: "", advisor: "黄帅", funding: 2, subject: "土木工程" },
+
+            // 2023年项目
+            { year: 2023, projectId: "", projectName: "外置角钢摇摆—自复位双柱墩基于位移的抗震设计方法", principal: "王世杰", studentId: "21661204", advisor: "孙治国", funding: 2, subject: "土木工程" },
+            { year: 2023, projectId: "", projectName: "地震作用下多层RC框架结构抗倒塌设计思想的演变及新方法研究", principal: "徐雨阳", studentId: "21661206", advisor: "郭迅", funding: 1, subject: "土木工程" },
+            { year: 2023, projectId: "", projectName: "基于监测数据的高层建筑结构抗震性能演化", principal: "井雷", studentId: "21661201", advisor: "郭迅", funding: 1, subject: "土木工程" },
+            { year: 2023, projectId: "", projectName: "高层剪力墙结构抗震性能分析与减震控制研究", principal: "孟健", studentId: "21661202", advisor: "周洋", funding: 2, subject: "土木工程" },
+            { year: 2023, projectId: "", projectName: "机制砂混凝土流动性调节剂的制备以及性能研究", principal: "姚越", studentId: "21661209", advisor: "左彦峰", funding: 1, subject: "土木工程" },
+            { year: 2023, projectId: "", projectName: "圆形截面RC桥墩抗震变形能力统一计算模型", principal: "王胜楠", studentId: "21661210", advisor: "孙治国", funding: 1, subject: "土木工程" },
+            { year: 2023, projectId: "", projectName: "基于Abaqus对CFRP加固半高填充墙框架结构抗震性能的有限元模型分析", principal: "刘翔宇", studentId: "21661212", advisor: "郭晓云", funding: 1, subject: "土木工程" },
+            { year: 2023, projectId: "", projectName: "区域与城市典型建筑抗震性能分析与地震易损性模型构建", principal: "林悦辉", studentId: "21661213", advisor: "周洋", funding: 2, subject: "土木工程" },
+            { year: 2023, projectId: "", projectName: "可液化倾斜河谷场地简支梁桥体系地震反应分析", principal: "秦极", studentId: "21661217", advisor: "孙治国", funding: 2, subject: "土木工程" },
+
+            // 2022年项目
+            { year: 2022, projectId: "ZY20220307", projectName: "开窗洞半高填充墙RC框架结构抗震性能研究", principal: "蔡萌", studentId: "204661127", advisor: "郭迅", funding: 1, subject: "土木工程" },
+            { year: 2022, projectId: "ZY20220308", projectName: "配置竖向预应力筋RC桥墩偏心受压抗震性能研究", principal: "张震威", studentId: "204661111", advisor: "孙治国", funding: 2, subject: "土木工程" },
+            { year: 2022, projectId: "ZY20220314", projectName: "考虑竖向地震动作用下双层排架墩的抗震性能研究", principal: "王严信", studentId: "204661129", advisor: "孙治国", funding: 2, subject: "土木工程" },
+            { year: 2022, projectId: "ZY20220316", projectName: "氯盐侵蚀下摇摆-自复位桥墩抗震性能退化机理", principal: "张涵旖", studentId: "204661123", advisor: "孙治国", funding: 1, subject: "土木工程" },
+            { year: 2022, projectId: "ZY20220320", projectName: "考虑填充墙作用的RC框架结构地震破坏机理", principal: "齐正欣", studentId: "204661113", advisor: "周洋", funding: 1, subject: "土木工程" },
+
+            // 2021年项目
+            { year: 2021, projectId: "ZY20210301", projectName: "防落梁油阻尼器抗震优化设计及其性能研究", principal: "齐芳月", studentId: "194661139", advisor: "郭迅", funding: 1, subject: "土木工程" },
+            { year: 2021, projectId: "ZY20210302", projectName: "考虑地震动持时影响的桥墩抗震性能评价", principal: "李翔平", studentId: "194661134", advisor: "孙治国", funding: 1, subject: "土木工程" },
+            { year: 2021, projectId: "ZY20210305", projectName: "灰砂砖砌体抗震性能研究", principal: "王储", studentId: "194661142", advisor: "郭迅", funding: 1, subject: "土木工程" },
+            { year: 2021, projectId: "ZY20210308", projectName: "不同楼层填充草砖墙对高层位移角的影响分析", principal: "唐小宝", studentId: "194661109", advisor: "郭迅", funding: 1, subject: "土木工程" },
+            { year: 2021, projectId: "ZY20210309", projectName: "CFRP加固半高填充墙框架结构抗震性能研究", principal: "陈杰", studentId: "194661112", advisor: "郭晓云", funding: 1, subject: "土木工程" },
+            { year: 2021, projectId: "ZY20210314", projectName: "北京市人防工程兼做应急避难场所可行性分析", principal: "沈冠豪", studentId: "194661133", advisor: "蔡晓光", funding: 1, subject: "土木工程" },
+            { year: 2021, projectId: "ZY20210315", projectName: "采用混合抗震体系的桥梁双柱墩抗震性能研究", principal: "孙熠", studentId: "194661110", advisor: "孙治国", funding: 1, subject: "土木工程" },
+            { year: 2021, projectId: "ZY20210319", projectName: "北川地震遗址对城乡韧性评价的启示", principal: "董策", studentId: "194661132", advisor: "郭迅", funding: 1, subject: "土木工程" },
+            { year: 2021, projectId: "ZY20210320", projectName: "GFRP对砖砌体房屋抗震加固方法研究", principal: "唐永明", studentId: "194661125", advisor: "郭晓云", funding: 1, subject: "土木工程" },
+
+            // 2020年项目
+            { year: 2020, projectId: "", projectName: "配置不锈钢筋的摇摆自复位桥墩抗震性能研究", principal: "杨葆洋", studentId: "184661102", advisor: "孙治国", funding: 1, subject: "土木工程" },
+            { year: 2020, projectId: "", projectName: "新型填充墙对框架结构内力分配的影响", principal: "付昊", studentId: "184661138", advisor: "郭迅", funding: 1, subject: "土木工程" },
+            { year: 2020, projectId: "", projectName: "受拉区配置ECC的钢筋混凝土板耐久性研究", principal: "刘晓奎", studentId: "184661130", advisor: "孙治国", funding: 2, subject: "土木工程" },
+
+            // 2019年项目
+            { year: 2019, projectId: "", projectName: "考虑桩土作用的钢筋混凝土桥墩残余位移分析", principal: "张振涛", studentId: "174661111", advisor: "孙治国", funding: 2, subject: "土木工程" },
+            { year: 2019, projectId: "", projectName: "RC柱抗震设计新方法", principal: "陈波", studentId: "174661105", advisor: "郭迅", funding: 1, subject: "土木工程" },
+            { year: 2019, projectId: "", projectName: "地震作用下的RC框架柱的破坏模式研究", principal: "孙志诚", studentId: "174661120", advisor: "郭迅", funding: 1, subject: "土木工程" },
+
+            // 2018年项目
+            { year: 2018, projectId: "", projectName: "远场大震对华北平原孔隙未固结含水层渗透系数时空变化影响研究", principal: "王明远", studentId: "164661107", advisor: "谷洪彪", funding: 2, subject: "地质工程" },
+            { year: 2018, projectId: "", projectName: "基于井水位潮汐径-垂向流响应模型估算垂向含水层参数的方法", principal: "钱建秀", studentId: "164661112", advisor: "刘春平", funding: 1, subject: "地质工程" },
+            { year: 2018, projectId: "", projectName: "利用小波包能量和二次协方差矩阵进行结构损伤识别的神经网络法", principal: "刘军香", studentId: "164661102", advisor: "王立新", funding: 1, subject: "地质工程" },
+            { year: 2025, projectId: "CXZZSS2025144", projectName: "近断层多点多维全非平稳随机地震动降维模拟及工程应用", principal: "陈鑫", studentId: "", advisor: "刘子心", funding: 2, subject: "土木工程" },
+            { year: 2025, projectId: "ZY20250314", projectName: "冲刷与氯盐侵蚀联合作用下考虑液化场地群桩-桥墩抗震性能研究", principal: "唐霞", studentId: "", advisor: "孙治国", funding: 2, subject: "土木工程" },
+            { year: 2025, projectId: "ZY20250315", projectName: "考虑填充墙影响的CFRP加固RC框架结构抗震性能研究", principal: "周学正", studentId: "", advisor: "周洋", funding: 1, subject: "土木工程" },
+            { year: 2025, projectId: "ZY20250316", projectName: "预埋分离式型钢连接装配式桥墩抗震性能研究", principal: "黄攀", studentId: "", advisor: "岳茂光", funding: 1, subject: "土木工程" },
+            { year: 2025, projectId: "ZY20250317", projectName: "基于岭回归与Holt winters法对在役桥梁的性能预测算法研究", principal: "曹星宇", studentId: "", advisor: "桂成中", funding: 1, subject: "土木工程" },
+            { year: 2025, projectId: "ZY20250318", projectName: "基于BP神经网络的桥墩等效塑性铰长度预测模型", principal: "刘云华", studentId: "", advisor: "", funding: 1, subject: "土木工程" },
+
+            // 2024年项目
+            { year: 2024, projectId: "", projectName: "液化倾斜场地简支梁桥地震破坏机理研究", principal: "佟帆", studentId: "", advisor: "孙治国", funding: 2, subject: "土木工程" },
+            { year: 2024, projectId: "", projectName: "不规则桥梁排架抗震性能研究", principal: "陈彦竹", studentId: "", advisor: "孙治国", funding: 2, subject: "土木工程" },
+            { year: 2024, projectId: "", projectName: "实测结构地震响应对致灾机理的启示", principal: "刘雪纯", studentId: "", advisor: "郭迅", funding: 2, subject: "土木工程" },
+            { year: 2024, projectId: "", projectName: "基于'变形饱和'理论的多层RC框架-填充墙结构体系地震破坏机理研究", principal: "张学坦", studentId: "", advisor: "周洋", funding: 2, subject: "土木工程" },
+            { year: 2024, projectId: "", projectName: "翼墙加固的框架-砌体混杂结构抗震性能的研究", principal: "王传虎", studentId: "", advisor: "郭迅", funding: 2, subject: "土木工程" },
+            { year: 2024, projectId: "", projectName: "不同填充墙材料对RC框架结构的抗震性能影响", principal: "闫程", studentId: "", advisor: "郭迅", funding: 1, subject: "土木工程" },
+            { year: 2024, projectId: "", projectName: "地质聚合物固废骨料砌块的制备与性能研究", principal: "陶俊旭", studentId: "", advisor: "左彦峰", funding: 1, subject: "土木工程" },
+            { year: 2024, projectId: "", projectName: "基于三度空间理论的灾害韧性评估", principal: "郑文文", studentId: "", advisor: "刘敬严", funding: 1, subject: "土木工程" },
+            { year: 2024, projectId: "", projectName: "地震与同震滑坡作用下管道破坏机理及韧性防控方法研究", principal: "裴鹏程", studentId: "", advisor: "黄帅", funding: 2, subject: "土木工程" },
+
+            // 2023年项目
+            { year: 2023, projectId: "", projectName: "外置角钢摇摆—自复位双柱墩基于位移的抗震设计方法", principal: "王世杰", studentId: "21661204", advisor: "孙治国", funding: 2, subject: "土木工程" },
+            { year: 2023, projectId: "", projectName: "地震作用下多层RC框架结构抗倒塌设计思想的演变及新方法研究", principal: "徐雨阳", studentId: "21661206", advisor: "郭迅", funding: 1, subject: "土木工程" },
+            { year: 2023, projectId: "", projectName: "基于监测数据的高层建筑结构抗震性能演化", principal: "井雷", studentId: "21661201", advisor: "郭迅", funding: 1, subject: "土木工程" },
+            { year: 2023, projectId: "", projectName: "高层剪力墙结构抗震性能分析与减震控制研究", principal: "孟健", studentId: "21661202", advisor: "周洋", funding: 2, subject: "土木工程" },
+            { year: 2023, projectId: "", projectName: "机制砂混凝土流动性调节剂的制备以及性能研究", principal: "姚越", studentId: "21661209", advisor: "左彦峰", funding: 1, subject: "土木工程" },
+            { year: 2023, projectId: "", projectName: "圆形截面RC桥墩抗震变形能力统一计算模型", principal: "王胜楠", studentId: "21661210", advisor: "孙治国", funding: 1, subject: "土木工程" },
+            { year: 2023, projectId: "", projectName: "基于Abaqus对CFRP加固半高填充墙框架结构抗震性能的有限元模型分析", principal: "刘翔宇", studentId: "21661212", advisor: "郭晓云", funding: 1, subject: "土木工程" },
+            { year: 2023, projectId: "", projectName: "区域与城市典型建筑抗震性能分析与地震易损性模型构建", principal: "林悦辉", studentId: "21661213", advisor: "周洋", funding: 2, subject: "土木工程" },
+            { year: 2023, projectId: "", projectName: "可液化倾斜河谷场地简支梁桥体系地震反应分析", principal: "秦极", studentId: "21661217", advisor: "孙治国", funding: 2, subject: "土木工程" },
+
+            // 2022年项目
+            { year: 2022, projectId: "ZY20220307", projectName: "开窗洞半高填充墙RC框架结构抗震性能研究", principal: "蔡萌", studentId: "204661127", advisor: "郭迅", funding: 1, subject: "土木工程" },
+            { year: 2022, projectId: "ZY20220308", projectName: "配置竖向预应力筋RC桥墩偏心受压抗震性能研究", principal: "张震威", studentId: "204661111", advisor: "孙治国", funding: 2, subject: "土木工程" },
+            { year: 2022, projectId: "ZY20220314", projectName: "考虑竖向地震动作用下双层排架墩的抗震性能研究", principal: "王严信", studentId: "204661129", advisor: "孙治国", funding: 2, subject: "土木工程" },
+            { year: 2022, projectId: "ZY20220316", projectName: "氯盐侵蚀下摇摆-自复位桥墩抗震性能退化机理", principal: "张涵旖", studentId: "204661123", advisor: "孙治国", funding: 1, subject: "土木工程" },
+            { year: 2022, projectId: "ZY20220320", projectName: "考虑填充墙作用的RC框架结构地震破坏机理", principal: "齐正欣", studentId: "204661113", advisor: "周洋", funding: 1, subject: "土木工程" },
+
+            // 2021年项目
+            { year: 2021, projectId: "ZY20210301", projectName: "防落梁油阻尼器抗震优化设计及其性能研究", principal: "齐芳月", studentId: "194661139", advisor: "郭迅", funding: 1, subject: "土木工程" },
+            { year: 2021, projectId: "ZY20210302", projectName: "考虑地震动持时影响的桥墩抗震性能评价", principal: "李翔平", studentId: "194661134", advisor: "孙治国", funding: 1, subject: "土木工程" },
+            { year: 2021, projectId: "ZY20210305", projectName: "灰砂砖砌体抗震性能研究", principal: "王储", studentId: "194661142", advisor: "郭迅", funding: 1, subject: "土木工程" },
+            { year: 2021, projectId: "ZY20210308", projectName: "不同楼层填充草砖墙对高层位移角的影响分析", principal: "唐小宝", studentId: "194661109", advisor: "郭迅", funding: 1, subject: "土木工程" },
+            { year: 2021, projectId: "ZY20210309", projectName: "CFRP加固半高填充墙框架结构抗震性能研究", principal: "陈杰", studentId: "194661112", advisor: "郭晓云", funding: 1, subject: "土木工程" },
+            { year: 2021, projectId: "ZY20210314", projectName: "北京市人防工程兼做应急避难场所可行性分析", principal: "沈冠豪", studentId: "194661133", advisor: "蔡晓光", funding: 1, subject: "土木工程" },
+            { year: 2021, projectId: "ZY20210315", projectName: "采用混合抗震体系的桥梁双柱墩抗震性能研究", principal: "孙熠", studentId: "194661110", advisor: "孙治国", funding: 1, subject: "土木工程" },
+            { year: 2021, projectId: "ZY20210319", projectName: "北川地震遗址对城乡韧性评价的启示", principal: "董策", studentId: "194661132", advisor: "郭迅", funding: 1, subject: "土木工程" },
+            { year: 2021, projectId: "ZY20210320", projectName: "GFRP对砖砌体房屋抗震加固方法研究", principal: "唐永明", studentId: "194661125", advisor: "郭晓云", funding: 1, subject: "土木工程" },
+
+            // 2020年项目
+            { year: 2020, projectId: "", projectName: "配置不锈钢筋的摇摆自复位桥墩抗震性能研究", principal: "杨葆洋", studentId: "184661102", advisor: "孙治国", funding: 1, subject: "土木工程" },
+            { year: 2020, projectId: "", projectName: "新型填充墙对框架结构内力分配的影响", principal: "付昊", studentId: "184661138", advisor: "郭迅", funding: 1, subject: "土木工程" },
+            { year: 2020, projectId: "", projectName: "受拉区配置ECC的钢筋混凝土板耐久性研究", principal: "刘晓奎", studentId: "184661130", advisor: "孙治国", funding: 2, subject: "土木工程" },
+
+            // 2019年项目
+            { year: 2019, projectId: "", projectName: "考虑桩土作用的钢筋混凝土桥墩残余位移分析", principal: "张振涛", studentId: "174661111", advisor: "孙治国", funding: 2, subject: "土木工程" },
+            { year: 2019, projectId: "", projectName: "RC柱抗震设计新方法", principal: "陈波", studentId: "174661105", advisor: "郭迅", funding: 1, subject: "土木工程" },
+            { year: 2019, projectId: "", projectName: "地震作用下的RC框架柱的破坏模式研究", principal: "孙志诚", studentId: "174661120", advisor: "郭迅", funding: 1, subject: "土木工程" },
+
+            // 2018年项目
+            { year: 2018, projectId: "", projectName: "远场大震对华北平原孔隙未固结含水层渗透系数时空变化影响研究", principal: "王明远", studentId: "164661107", advisor: "谷洪彪", funding: 2, subject: "地质工程" },
+            { year: 2018, projectId: "", projectName: "基于井水位潮汐径-垂向流响应模型估算垂向含水层参数的方法", principal: "钱建秀", studentId: "164661112", advisor: "刘春平", funding: 1, subject: "地质工程" },
+            { year: 2018, projectId: "", projectName: "利用小波包能量和二次协方差矩阵进行结构损伤识别的神经网络法", principal: "刘军香", studentId: "164661102", advisor: "王立新", funding: 1, subject: "地质工程" },
+            { year: 2018, projectId: "", projectName: "含粘粒砂动剪切模量和阻尼比的共振柱实验研究", principal: "赵云辉", studentId: "164661115", advisor: "孟凡超", funding: 1, subject: "地质工程" },
+            { year: 2018, projectId: "", projectName: "HVSR方法应用于场地效应的适用性研究", principal: "张照鹏", studentId: "164661104", advisor: "荣棉水", funding: 1, subject: "岩土工程" },
+            { year: 2018, projectId: "", projectName: "上游式尾矿坝地震破坏机理数值模拟分析", principal: "杨永升", studentId: "164661113", advisor: "蔡晓光", funding: 1, subject: "岩土工程" },
+
+            // 2017年项目
+            { year: 2017, projectId: "", projectName: "测压水位对正弦波荷载的响应特征研究", principal: "张璜", studentId: "154661105", advisor: "", funding: 2, subject: "水文地质" },
+            { year: 2017, projectId: "", projectName: "振动条件下承压含水层孔隙水压力特征分布", principal: "谢亮", studentId: "154661125", advisor: "", funding: 2, subject: "水文地质" },
+            { year: 2017, projectId: "", projectName: "基于GoCAD的新疆伊犁河谷西部霍城县平原区三维地质结构与含水层属性研究", principal: "尹鹏浩", studentId: "154661130", advisor: "", funding: 1, subject: "地质工程" },
+            { year: 2017, projectId: "", projectName: "新疆伊犁河谷西部霍城县平原区地下水功能评价", principal: "史志广", studentId: "154661129", advisor: "", funding: 1, subject: "水文地质" },
+            { year: 2017, projectId: "", projectName: "双级台阶式加筋土挡墙地震破坏机理分析", principal: "李思汉", studentId: "154661138", advisor: "", funding: 1, subject: "岩土工程" },
+            { year: 2017, projectId: "", projectName: "海原大地震红土川滑坡稳定性分析", principal: "彭达", studentId: "154661112", advisor: "", funding: 1, subject: "地质工程" },
+            { year: 2017, projectId: "", projectName: "设计反应谱标定的工程方法", principal: "蒋晓涵", studentId: "154661101", advisor: "", funding: 1, subject: "地震工程" },
+            { year: 2017, projectId: "", projectName: "基于OpenCL的有限元EBE程序的研究", principal: "贺红栋", studentId: "154661107", advisor: "", funding: 1, subject: "计算机应用" },
+            { year: 2017, projectId: "", projectName: "地震作用下小净距隧道合理净距的数值研究", principal: "朱东山", studentId: "154661103", advisor: "", funding: 1, subject: "岩土工程" },
+            { year: 2017, projectId: "", projectName: "偃师隐伏断裂的空间展布特征研究", principal: "祁高", studentId: "154661139", advisor: "", funding: 1, subject: "地质工程" },
+            { year: 2017, projectId: "", projectName: "西郊永定河河水与地下水响应关系试验及数值模拟研究", principal: "谷建芬", studentId: "154661117", advisor: "", funding: 1, subject: "水文地质" },
+            { year: 2017, projectId: "", projectName: "包气带反硝化作用研究—以潮白河冲洪积扇为例", principal: "耿宏志", studentId: "154661131", advisor: "", funding: 1, subject: "环境工程" },
+            { year: 2017, projectId: "", projectName: "夏垫隐伏断裂分段性研究", principal: "邓梅", studentId: "154661137", advisor: "", funding: 1, subject: "地质工程" },
+
+            // 2016年项目
+            { year: 2016, projectId: "ZY20160301", projectName: "基于水化学和同位素的新疆伊犁盆地'三水'转化研究", principal: "姜海宁", studentId: "", advisor: "", funding: 2, subject: "水文地质" },
+            { year: 2016, projectId: "ZY20160302", projectName: "土体圆形隧道地震反应的数值分析", principal: "孙强强", studentId: "", advisor: "", funding: 1, subject: "岩土工程" },
+            { year: 2016, projectId: "ZY20160303", projectName: "海源大地震诱发黄土滑坡分布规律研究", principal: "杨顺", studentId: "", advisor: "", funding: 1, subject: "地质工程" },
+            { year: 2016, projectId: "ZY20160304", projectName: "典型农村砖木结构房屋的抗震分析", principal: "程宇豪", studentId: "", advisor: "", funding: 1, subject: "土木工程" },
+            { year: 2016, projectId: "ZY20160305", projectName: "大别山地区现今三维地壳运动研究", principal: "宋尚武", studentId: "", advisor: "", funding: 1, subject: "地球物理" },
+            { year: 2016, projectId: "ZY20160306", projectName: "基于逆时射线追踪的微地震定位方法研究", principal: "芮剑文", studentId: "", advisor: "", funding: 1, subject: "地球物理" },
+            { year: 2016, projectId: "ZY20160307", projectName: "基于方向场的广义反褶积方法研究与应用", principal: "张帅", studentId: "", advisor: "", funding: 1, subject: "地球物理" },
+            { year: 2016, projectId: "ZY20160308", projectName: "新疆伊犁河谷平原区地下水水化学演化规律研究", principal: "刘慧文", studentId: "", advisor: "", funding: 1, subject: "水文地质" },
+            { year: 2016, projectId: "ZY20160309", projectName: "新疆伊犁河流域水体同位素特征及其指示意义", principal: "王贺", studentId: "", advisor: "", funding: 1, subject: "水文地质" },
+            { year: 2016, projectId: "ZY20160310", projectName: "霍城县平原区地下水地球化学演化模拟", principal: "靳书贺", studentId: "", advisor: "", funding: 1, subject: "水文地质" },
+            { year: 2016, projectId: "ZY20160311", projectName: "耦合潜源参数不确定性效应的地震海啸危险性估计的程序设计", principal: "刘哲", studentId: "", advisor: "", funding: 1, subject: "地震工程" },
+            { year: 2016, projectId: "ZY20160312", projectName: "近岸场点地震海啸危险性对潜源参数全域敏感性的定量分析方法", principal: "田建伟", studentId: "", advisor: "", funding: 1, subject: "地震工程" },
+            { year: 2016, projectId: "ZY20160313", projectName: "基于背景噪声研究辽宁地区面波群速度结构", principal: "冯策", studentId: "", advisor: "", funding: 1, subject: "地球物理" },
+            { year: 2016, projectId: "ZY20160314", projectName: "北京平原夏垫断裂钻孔地层特征定量分析", principal: "赵江涛", studentId: "", advisor: "", funding: 1, subject: "地质工程" },
+
+            // 2015年项目
+            { year: 2015, projectId: "ZY20150301", projectName: "地下水对地震动参数的影响研究", principal: "常晁瑜", studentId: "", advisor: "", funding: 1.5, subject: "水文地质" },
+            { year: 2015, projectId: "ZY20150302", projectName: "基于ABAQUS的场地地震反应分析", principal: "李煜东", studentId: "", advisor: "", funding: 1.5, subject: "岩土工程" },
+            { year: 2015, projectId: "ZY20150303", projectName: "地表变形尺度与震源规模不协调机制的微地貌研究——以北京平原区夏垫断裂为例", principal: "邵博", studentId: "", advisor: "", funding: 1.5, subject: "地质工程" },
+            { year: 2015, projectId: "ZY20150304", projectName: "高精度广角反射动校正方法研究", principal: "刘骁", studentId: "", advisor: "", funding: 1.5, subject: "地球物理" },
+        ];
+
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化筛选器选项
+            initFilters();
+            
+            // 直接显示全部数据，不进行统计计算
+            filteredData = [...researchData];
+            renderTable();
+            updateShowingText();
+            
+            // 添加事件监听器
+            document.getElementById('yearFilter').addEventListener('change', applyFilters);
+            document.getElementById('advisorFilter').addEventListener('change', applyFilters);
+            document.getElementById('subjectFilter').addEventListener('change', applyFilters);
+            document.getElementById('fundingFilter').addEventListener('change', applyFilters);
+            document.getElementById('searchInput').addEventListener('input', applyFilters);
+            document.getElementById('itemsPerPage').addEventListener('change', function() {
+                currentPage = 1;
+                applyFilters();
+            });
+            document.getElementById('resetFilters').addEventListener('click', resetFilters);
+            document.getElementById('exportData').addEventListener('click', exportData);
+        });
+
+        // 全局变量
+        let currentPage = 1;
+        let filteredData = [];
+
+        // 初始化筛选器选项
+        function initFilters() {
+            // 年份筛选器
+            const yearFilter = document.getElementById('yearFilter');
+            const years = [...new Set(researchData.map(item => item.year))].sort((a, b) => b - a);
+            years.forEach(year => {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearFilter.appendChild(option);
+            });
+            
+            // 导师筛选器
+            const advisorFilter = document.getElementById('advisorFilter');
+            const advisors = [...new Set(researchData.map(item => item.advisor).filter(advisor => advisor))].sort();
+            advisors.forEach(advisor => {
+                const option = document.createElement('option');
+                option.value = advisor;
+                option.textContent = advisor;
+                advisorFilter.appendChild(option);
+            });
+            
+            // 学科筛选器
+            const subjectFilter = document.getElementById('subjectFilter');
+            const subjects = [...new Set(researchData.map(item => item.subject).filter(subject => subject))].sort();
+            subjects.forEach(subject => {
+                const option = document.createElement('option');
+                option.value = subject;
+                option.textContent = subject;
+                subjectFilter.appendChild(option);
+            });
+        }
+
+        // 应用筛选条件
+        function applyFilters() {
+            const yearFilter = document.getElementById('yearFilter').value;
+            const advisorFilter = document.getElementById('advisorFilter').value;
+            const subjectFilter = document.getElementById('subjectFilter').value;
+            const fundingFilter = document.getElementById('fundingFilter').value;
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            
+            // 筛选数据
+            filteredData = researchData.filter(item => {
+                // 年份筛选
+                if (yearFilter && item.year != yearFilter) return false;
+                
+                // 导师筛选
+                if (advisorFilter && item.advisor !== advisorFilter) return false;
+                
+                // 学科筛选
+                if (subjectFilter && item.subject !== subjectFilter) return false;
+                
+                // 经费筛选
+                if (fundingFilter) {
+                    const [min, max] = fundingFilter.split('-').map(Number);
+                    if (max === undefined) {
+                        if (item.funding < min) return false;
+                    } else {
+                        if (item.funding < min || item.funding >= max) return false;
+                    }
+                }
+                
+                // 搜索框筛选
+                if (searchInput) {
+                    const searchStr = `${item.year} ${item.projectId} ${item.projectName} ${item.principal} ${item.studentId} ${item.advisor} ${item.funding} ${item.subject}`.toLowerCase();
+                    if (!searchStr.includes(searchInput)) return false;
+                }
+                
+                return true;
+            });
+            
+            currentPage = 1;
+            renderTable();
+            updateShowingText();
+        }
+
+        // 重置筛选条件
+        function resetFilters() {
+            document.getElementById('yearFilter').value = '';
+            document.getElementById('advisorFilter').value = '';
+            document.getElementById('subjectFilter').value = '';
+            document.getElementById('fundingFilter').value = '';
+            document.getElementById('searchInput').value = '';
+            
+            filteredData = [...researchData];
+            currentPage = 1;
+            renderTable();
+            updateShowingText();
+        }
+
+        // 更新显示项目数量的文本
+        function updateShowingText() {
+            const totalProjects = filteredData.length;
+            document.getElementById('showing-text').textContent = `显示 ${totalProjects} 个项目`;
+        }
+
+        // 渲染表格
+        function renderTable() {
+            const tableBody = document.querySelector('#projectsTable tbody');
+            tableBody.innerHTML = '';
+            
+            const itemsPerPage = parseInt(document.getElementById('itemsPerPage').value);
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, filteredData.length);
+            
+            for (let i = startIndex; i < endIndex; i++) {
+                const item = filteredData[i];
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td><span class="year-badge">${item.year}</span></td>
+                    <td>${item.projectId || '-'}</td>
+                    <td>${item.projectName}</td>
+                    <td>${item.principal}</td>
+                    <td>${item.studentId || '-'}</td>
+                    <td>${item.advisor || '-'}</td>
+                    <td><span class="funding-badge">${item.funding.toFixed(2)}</span></td>
+                    <td><span class="subject-badge">${item.subject}</span></td>
+                `;
+                
+                tableBody.appendChild(row);
+            }
+            
+            // 渲染分页
+            renderPagination();
+        }
+
+        // 渲染分页
+        function renderPagination() {
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = '';
+            
+            const itemsPerPage = parseInt(document.getElementById('itemsPerPage').value);
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            
+            if (totalPages <= 1) return;
+            
+            // 上一页按钮
+            const prevLi = document.createElement('li');
+            prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+            prevLi.innerHTML = `<a class="page-link" href="#" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>`;
+            prevLi.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderTable();
+                }
+            });
+            pagination.appendChild(prevLi);
+            
+            // 页码按钮
+            const startPage = Math.max(1, currentPage - 2);
+            const endPage = Math.min(totalPages, startPage + 4);
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const pageLi = document.createElement('li');
+                pageLi.className = `page-item ${i === currentPage ? 'active' : ''}`;
+                pageLi.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+                pageLi.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    currentPage = i;
+                    renderTable();
+                });
+                pagination.appendChild(pageLi);
+            }
+            
+            // 下一页按钮
+            const nextLi = document.createElement('li');
+            nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+            nextLi.innerHTML = `<a class="page-link" href="#" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>`;
+            nextLi.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderTable();
+                }
+            });
+            pagination.appendChild(nextLi);
+        }
+
+        // 导出数据
+        function exportData() {
+            // 创建CSV内容
+            let csvContent = "年份,项目编号,项目名称,负责人,学号,指导老师,经费(万元),所属学科\n";
+            
+            filteredData.forEach(item => {
+                csvContent += `${item.year},${item.projectId || ''},${item.projectName},${item.principal},${item.studentId || ''},${item.advisor || ''},${item.funding},${item.subject}\n`;
+            });
+            
+            // 创建下载链接
+            const encodedUri = encodeURI("data:text/csv;charset=utf-8," + csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "研究生科研成果统计.csv");
+            document.body.appendChild(link);
+            
+            // 触发下载
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>

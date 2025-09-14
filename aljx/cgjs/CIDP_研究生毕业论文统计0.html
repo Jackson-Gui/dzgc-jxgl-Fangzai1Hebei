@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>研究生毕业论文统计</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-dark: #0a1930;
+            --primary: #152642;
+            --primary-light: #1e3659;
+            --accent: #4a90e2;
+            --accent-light: #5aa0ff;
+            --text: #e6f1ff;
+            --text-secondary: #a4b8d9;
+            --success: #3dd598;
+            --warning: #ffce73;
+            --danger: #fc5a5a;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            color: var(--text);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        /* 导航栏样式 */
+        .navbar {
+            background: rgba(10, 25, 47, 0.95) !important;
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            padding: 15px 0;
+            margin-bottom: 30px;
+        }
+        
+        .navbar-brand h3 {
+            background: linear-gradient(90deg, var(--accent-light), var(--success));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        .navbar-nav .nav-link {
+            color: var(--text-secondary);
+            font-weight: 500;
+            padding: 8px 15px;
+            margin: 0 5px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-nav .nav-link:hover,
+        .navbar-nav .nav-link.active {
+            color: var(--text);
+            background: rgba(74, 144, 226, 0.2);
+        }
+        
+        .navbar-toggler {
+            border: none;
+            color: var(--text);
+        }
+        
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: var(--primary-light);
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            background: var(--primary);
+            color: var(--text);
+            font-size: 1rem;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
+        }
+        
+        .search-box input::placeholder {
+            color: var(--text-secondary);
+        }
+        
+        .search-box input:focus {
+            outline: 2px solid var(--accent);
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        select {
+            padding: 12px 15px;
+            border: none;
+            border-radius: 8px;
+            background: var(--primary);
+            color: var(--text);
+            font-size: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+        }
+        
+        select:focus {
+            outline: 2px solid var(--accent);
+        }
+        
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            background: var(--accent);
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        button:hover {
+            background: var(--accent-light);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .stat-card {
+            flex: 1;
+            min-width: 200px;
+            padding: 20px;
+            background: var(--primary-light);
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        
+        .stat-card h3 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+            color: var(--accent-light);
+        }
+        
+        .stat-card p {
+            color: var(--text-secondary);
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            background: var(--primary-light);
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1000px;
+        }
+        
+        thead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        th {
+            background: var(--primary-dark);
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--accent-light);
+            cursor: pointer;
+            transition: background 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        th:hover {
+            background: var(--accent);
+        }
+        
+        th i {
+            margin-left: 5px;
+            font-size: 0.8rem;
+        }
+        
+        tr:nth-child(even) {
+            background: rgba(30, 54, 89, 0.4);
+        }
+        
+        tr:hover {
+            background: rgba(74, 144, 226, 0.2);
+        }
+        
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(74, 144, 226, 0.1);
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .pagination button {
+            background: var(--primary);
+            min-width: 40px;
+            padding: 10px;
+        }
+        
+        .pagination button.active {
+            background: var(--accent);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+            }
+            
+            .search-box {
+                width: 10%;
+            }
+            
+            .stat-card {
+                min-width: 100%;
+            }
+            
+            .navbar-nav {
+                background: var(--primary-light);
+                border-radius: 12px;
+                padding: 10px;
+                margin-top: 10px;
+            }
+            
+            .navbar-nav .nav-link {
+                margin: 5px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        
+        <div class="filter-group">
+        <div class="stats">
+            <div class="stat-card">
+                <h3 id="totalCount">0</h3>
+                <p>总记录数</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="earthquakeCount">0</h3>
+                <p>地震工程方向</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="geotechCount">0</h3>
+                <p>岩土工程方向</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="disasterCount">0</h3>
+                <p>防灾减灾方向</p>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="关键词...">
+            </div>
+
+                <select id="gradeFilter">
+                    <option value="">全部年级</option>
+                    <option value="2013">2013级</option>
+                    <option value="2014">2014级</option>
+                    <option value="2015">2015级</option>
+                    <option value="2016">2016级</option>
+                    <option value="2017">2017级</option>
+                    <option value="2018">2018级</option>
+                    <option value="2019">2019级</option>
+                    <option value="2020">2020级</option>
+                    <option value="2021">2021级</option>
+                </select>
+                <select id="advisorFilter">
+                    <option value="">全部导师</option>
+                    <option value="郭迅">郭迅</option>
+                    <option value="孙治国">孙治国</option>
+                    <option value="刘红帅">刘红帅</option>
+                    <option value="郭晓云">郭晓云</option>
+                    <option value="王立新">王立新</option>
+                </select>
+                <select id="directionFilter">
+                    <option value="">全部方向</option>
+                    <option value="地震工程">地震工程</option>
+                    <option value="岩土工程与结构抗震">岩土工程与结构抗震</option>
+                    <option value="防灾减灾工程">防灾减灾工程</option>
+                </select>
+            <button id="resetFilters">重置</button>
+            </div>
+
+        </div>
+        
+
+        
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th data-sort="grade">年级 <i class="fas fa-sort"></i></th>
+                        <th data-sort="id">学号 <i class="fas fa-sort"></i></th>
+                        <th data-sort="name">姓名 <i class="fas fa-sort"></i></th>
+                        <th data-sort="advisor1">第一导师 <i class="fas fa-sort"></i></th>
+                        <th data-sort="advisor2">第二导师 <i class="fas fa-sort"></i></th>
+                        <th data-sort="title">论文题目 <i class="fas fa-sort"></i></th>
+                        <th data-sort="direction">培养方向 <i class="fas fa-sort"></i></th>
+                    </tr>
+                </thead>
+                <tbody id="dataBody">
+                    <!-- 数据将通过JavaScript填充 -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="pagination" id="pagination">
+            <!-- 分页按钮将通过JavaScript生成 -->
+        </div>
+        
+        <footer>
+            <p>© 2025 防灾科技学院地震工程与建筑安全学院 - 数据最后更新: 2025年9月</p>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 模拟JSON数据库
+        const thesisData = [
+            { grade: "2013级", id: "135661102", name: "杨立国", advisor1: "郭迅", advisor2: "王涛", title: "斜拉桥拉索损伤诊断新方法研究", direction: "地震工程" },
+            { grade: "2013级", id: "135661104", name: "范卫星", advisor1: "郭迅", advisor2: "王涛", title: "防落梁油阻尼器参数优化设计及工程应用研究", direction: "地震工程" },
+            { grade: "2013级", id: "135661118", name: "陈国辉", advisor1: "郭迅", advisor2: "王涛", title: "开洞对砌体墙片力学性能影响研究", direction: "地震工程" },
+            { grade: "2014级", id: "144661101", name: "王波", advisor1: "郭迅", advisor2: "-", title: "典型RC框架结构地震倒塌机理研究", direction: "岩土工程与结构抗震" },
+            { grade: "2014级", id: "144661111", name: "田野", advisor1: "郭迅", advisor2: "-", title: "基于ArcGIS的城乡抗震能力评价新方法", direction: "岩土工程与结构抗震" },
+            { grade: "2014级", id: "144661115", name: "宣越", advisor1: "郭迅", advisor2: "-", title: "基于临界平衡的RC框架结构最大层间位移角分析", direction: "岩土工程与结构抗震" },
+            { grade: "2015级", id: "154661107", name: "贺红栋", advisor1: "郭晓云", advisor2: "-", title: "基于FLAC3D的边坡地震动响应参数设置研究", direction: "岩土工程与结构抗震" },
+            { grade: "2015级", id: "154661118", name: "王振", advisor1: "郭晓云", advisor2: "-", title: "汶川地震中某框架结构力学性能功能分析", direction: "岩土工程与结构抗震" },
+            { grade: "2015级", id: "154661119", name: "丁世倩", advisor1: "郭迅", advisor2: "-", title: "用于高层剪力墙结构抗震实验的LBCF研究", direction: "岩土工程与结构抗震" },
+            { grade: "2015级", id: "154661121", name: "张宁鑫", advisor1: "郭晓云", advisor2: "-", title: "汶川大地震极震区某未倒砌体结构弹塑性分析", direction: "岩土工程与结构抗震" },
+            { grade: "2015级", id: "154661133", name: "袁新星", advisor1: "郭迅", advisor2: "-", title: "填充墙框架结构'强柱弱梁'问题的探讨", direction: "岩土工程与结构抗震" },
+            { grade: "2016级", id: "164661102", name: "刘军香", advisor1: "王立新", advisor2: "-", title: "利用小波包能量及二次协方差矩阵识别结构损伤的神经网络法", direction: "岩土工程与结构抗震" },
+            { grade: "2016级", id: "164661105", name: "韩蓬勃", advisor1: "刘红帅", advisor2: "-", title: "水平成层场地的一维时域非线性地震反应分析方法研究", direction: "岩土工程与结构抗震" },
+            { grade: "2016级", id: "164661108", name: "范晓庆", advisor1: "郭迅", advisor2: "-", title: "地震作用下钢筋混凝土柱的力学行为", direction: "岩土工程与结构抗震" },
+            { grade: "2016级", id: "164661109", name: "褚倩", advisor1: "郭迅", advisor2: "-", title: "高层剪力墙结构消能减震模型试验研究", direction: "岩土工程与结构抗震" },
+            { grade: "2016级", id: "164661122", name: "王琦", advisor1: "刘红帅", advisor2: "-", title: "天津地区剪切波速特征及其设计地震动参数研究", direction: "岩土工程与结构抗震" },
+            { grade: "2017级", id: "174661105", name: "陈波", advisor1: "刘必灯", advisor2: "-", title: "基于观测的高层建筑地震响应规律研究", direction: "岩土工程与结构抗震" },
+            { grade: "2017级", id: "174661108", name: "查申申", advisor1: "郭迅", advisor2: "-", title: "高层剪力墙边缘构件消能保护方法研究", direction: "岩土工程与结构抗震" },
+            { grade: "2017级", id: "174661111", name: "张振涛", advisor1: "孙治国", advisor2: "-", title: "长持时地震动下钢筋混凝土桥墩抗震性能研究", direction: "岩土工程与结构抗震" },
+            { grade: "2017级", id: "174661118", name: "丁新春", advisor1: "郭迅", advisor2: "-", title: "组合式防落梁阻尼器性能研究", direction: "岩土工程与结构抗震" },
+            { grade: "2017级", id: "174661120", name: "孙志诚", advisor1: "郭迅", advisor2: "-", title: "地震作用下的RC框架柱的破坏模式研究", direction: "岩土工程与结构抗震" },
+            { grade: "2017级", id: "174661124", name: "管璐", advisor1: "孙治国", advisor2: "-", title: "竖向地震动下摇摆-自复位双层排架墩抗震性能分析", direction: "岩土工程与结构抗震" },
+            { grade: "2017级", id: "174661136", name: "马惠宁", advisor1: "郭迅", advisor2: "-", title: "防落梁油阻尼器抗震优化设计", direction: "岩土工程与结构抗震" },
+            { grade: "2018级", id: "184661102", name: "杨葆洋", advisor1: "孙治国", advisor2: "-", title: "配置不锈钢筋的摇摆自复位桥墩抗震性能研究", direction: "岩土工程与结构抗震" },
+            { grade: "2018级", id: "184661130", name: "刘晓奎", advisor1: "孙治国", advisor2: "-", title: "ECC混凝土组合构件受弯全过程分析", direction: "岩土工程与结构抗震" },
+            { grade: "2018级", id: "184661138", name: "付昊", advisor1: "郭迅", advisor2: "-", title: "剪跨比对竖向构件破坏影响及实验验证", direction: "岩土工程与结构抗震" },
+            { grade: "2019级", id: "194661109", name: "唐小宝", advisor1: "孙治国", advisor2: "荣棉水", title: "填充草砖的结构抗震性能研究", direction: "岩土工程与结构抗震" },
+            { grade: "2019级", id: "194661110", name: "孙熠", advisor1: "孙治国", advisor2: "刘红帅", title: "桥梁双柱及三柱墩抗震性能研究", direction: "岩土工程与结构抗震" },
+            { grade: "2019级", id: "194661112", name: "陈杰", advisor1: "郭晓云", advisor2: "刘红帅", title: "CFRP加固半高填充墙框架结构抗震性能研究", direction: "岩土工程与结构抗震" },
+            { grade: "2019级", id: "194661125", name: "唐永明", advisor1: "郭晓云", advisor2: "刘红帅", title: "GFRP对砖砌体房屋抗震加固方法研究", direction: "岩土工程与结构抗震" },
+            { grade: "2019级", id: "194661132", name: "董策", advisor1: "郭迅", advisor2: "王立新", title: "学校建筑震害分析", direction: "岩土工程与结构抗震" },
+            { grade: "2019级", id: "194661134", name: "李翔平", advisor1: "孙治国", advisor2: "刘汉勇", title: "考虑地震动持时影响的钢筋混凝土桥墩地震损伤评价", direction: "岩土工程与结构抗震" },
+            { grade: "2019级", id: "194661135", name: "林聪聪", advisor1: "刘汉勇", advisor2: "蔡建羡", title: "运营期减隔震梁桥结构抗震安全风险评估", direction: "岩土工程与结构抗震" },
+            { grade: "2019级", id: "194661139", name: "齐芳月", advisor1: "郭迅", advisor2: "王立新", title: "典型底商多层房屋地震倒塌剖析", direction: "岩土工程与结构抗震" },
+            { grade: "2019级", id: "194661142", name: "王储", advisor1: "郭迅", advisor2: "刘子维", title: "灰砂砖抗震性能的研究", direction: "岩土工程与结构抗震" },
+            { grade: "2019级", id: "194661143", name: "王恺龙", advisor1: "刘汉勇", advisor2: "孙治国", title: "在用斜拉桥抗风安全风险分析", direction: "岩土工程与结构抗震" },
+            { grade: "2020级", id: "204661111", name: "张震威", advisor1: "孙治国", advisor2: "岳茂光", title: "偏心受压下RC桥墩地震破坏机理与损伤控制", direction: "防灾减灾工程" },
+            { grade: "2020级", id: "204661112", name: "王超", advisor1: "郭迅", advisor2: "王立新", title: "某典型砌体结构震害机理探讨", direction: "防灾减灾工程" },
+            { grade: "2020级", id: "204661113", name: "齐正欣", advisor1: "周洋", advisor2: "刘红彪", title: "考虑填充墙作用的多层RC框架结构地震机理破坏研究", direction: "防灾减灾工程" },
+            { grade: "2020级", id: "204661123", name: "张涵旖", advisor1: "孙治国", advisor2: "刘红彪", title: "氯盐侵蚀下RC桥墩抗震性能研究", direction: "防灾减灾工程" },
+            { grade: "2020级", id: "204661127", name: "蔡萌", advisor1: "郭迅", advisor2: "王立新", title: "从变形饱和角度考察柔性结构地震动响应", direction: "防灾减灾工程" },
+            { grade: "2020级", id: "204661129", name: "王严信", advisor1: "孙治国", advisor2: "姬志杰", title: "近断层竖向地震下RC双层排架墩桥梁抗震性能分析", direction: "防灾减灾工程" },
+            { grade: "2020级", id: "204661130", name: "张钦哲", advisor1: "郭迅", advisor2: "王立新", title: "基于变形饱和理论的震损房屋加固方法研究", direction: "防灾减灾工程" },
+            { grade: "2020级", id: "204661131", name: "吴诚根", advisor1: "尚春静", advisor2: "汪峻峰", title: "硫铝酸盐水泥改性UHPC力学性能和耐腐蚀性能研究", direction: "防灾减灾工程" },
+            { grade: "2021级", id: "21661201", name: "井雷", advisor1: "郭迅", advisor2: "胡荣攀", title: "基于模型缩聚的高层建筑响应重构算法研究", direction: "防灾减灾工程" },
+            { grade: "2021级", id: "21661202", name: "孟健", advisor1: "周洋", advisor2: "刘红彪", title: "某高层剪力墙结构地震易损性分析与减震方法研究", direction: "防灾减灾工程" },
+            { grade: "2021级", id: "21661203", name: "赵志漪", advisor1: "李正", advisor2: "刘红帅", title: "FRP加固RC框架结构抗震性能有限元分析", direction: "防灾减灾工程" },
+            { grade: "2021级", id: "21661204", name: "王世杰", advisor1: "孙治国", advisor2: "王林建", title: "外置防屈曲阻尼器摇摆自复位双柱墩基于位移的抗震设计方法", direction: "防灾减灾工程" },
+            { grade: "2021级", id: "21661205", name: "武继皎", advisor1: "郭迅", advisor2: "王立新", title: "墙柱组合体的本构关系研究", direction: "防灾减灾工程" },
+            { grade: "2021级", id: "21661206", name: "徐雨阳", advisor1: "郭迅", advisor2: "王立新", title: "RC框架结构抗倒塌设计思想的演变研究", direction: "防灾减灾工程" },
+            { grade: "2021级", id: "21661208", name: "叶俊琪", advisor1: "张立杰", advisor2: "尚春静", title: "房屋建筑工程BIM模型算量精度提升研究", direction: "防灾减灾工程" },
+            { grade: "2021级", id: "21661209", name: "姚越", advisor1: "左彦峰", advisor2: "高春勇", title: "机制砂混凝土流动性调节剂的制备、性能与机理研究", direction: "防灾减灾工程" },
+            { grade: "2021级", id: "21661210", name: "王胜楠", advisor1: "孙治国", advisor2: "姬志杰", title: "圆形截面RC桥墩抗震变形能力研究", direction: "防灾减灾工程" },
+            { grade: "2021级", id: "21661211", name: "宋天威", advisor1: "左彦峰", advisor2: "卓为顶", title: "基于定向钢纤维分布的超高性能混凝土制备和性能研究", direction: "防灾减灾工程" },
+            { grade: "2021级", id: "21661212", name: "刘翔宇", advisor1: "周洋", advisor2: "陈永盛", title: "考虑填充墙影响的CFRP加固框架结构抗震性能研究", direction: "防灾减灾工程" },
+            { grade: "2021级", id: "21661213", name: "林悦辉", advisor1: "周洋", advisor2: "刘红彪", title: "区域与城市典型建筑抗震能力分析与震害评估系统研究", direction: "防灾减灾工程" },
+            { grade: "2021级", id: "21661214", name: "谢亮辉", advisor1: "冷发光", advisor2: "尚春静", title: "变水压作用下的混凝土抗渗性试验方法研究", direction: "防灾减灾工程" },
+            { grade: "2021级", id: "21661215", name: "贾丹娜", advisor1: "尚春静", advisor2: "汪峻峰", title: "基于GIS的电梯维保单位应急救援点选址研究", direction: "防灾减灾工程" },
+            { grade: "2021级", id: "21661216", name: "毋志强", advisor1: "姚新强", advisor2: "苗启松", title: "地震灾害精细化人员伤亡及经济损失动态评估模型研究", direction: "防灾减灾工程" },
+            { grade: "2021级", id: "21661217", name: "秦极", advisor1: "孙治国", advisor2: "姬志杰", title: "氯盐侵蚀与砂土液化耦合作用下桩基-桥墩抗震性能研究", direction: "防灾减灾工程" },
+            { grade: "2021级", id: "21661218", name: "朱彤", advisor1: "姚新强", advisor2: "孙治国", title: "建筑地震脆弱性精细化评估方法研究", direction: "防灾减灾工程" }
+        ];
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            init();
+        });
+
+        function init() {
+            // 初始化统计信息
+            updateStats();
+            
+            // 渲染表格数据
+            renderTable(thesisData);
+            
+            // 添加事件监听器
+            document.getElementById('searchInput').addEventListener('input', handleSearch);
+            document.getElementById('gradeFilter').addEventListener('change', filterData);
+            document.getElementById('advisorFilter').addEventListener('change', filterData);
+            document.getElementById('directionFilter').addEventListener('change', filterData);
+            document.getElementById('resetFilters').addEventListener('click', resetFilters);
+            
+            // 添加表头排序功能
+            document.querySelectorAll('th[data-sort]').forEach(th => {
+                th.addEventListener('click', () => {
+                    const sortBy = th.getAttribute('data-sort');
+                    sortData(sortBy);
+                });
+            });
+        }
+
+        function updateStats() {
+            const totalCount = thesisData.length;
+            const earthquakeCount = thesisData.filter(item => item.direction === "地震工程").length;
+            const geotechCount = thesisData.filter(item => item.direction === "岩土工程与结构抗震").length;
+            const disasterCount = thesisData.filter(item => item.direction === "防灾减灾工程").length;
+            
+            document.getElementById('totalCount').textContent = totalCount;
+            document.getElementById('earthquakeCount').textContent = earthquakeCount;
+            document.getElementById('geotechCount').textContent = geotechCount;
+            document.getElementById('disasterCount').textContent = disasterCount;
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('dataBody');
+            tbody.innerHTML = '';
+            
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">没有找到匹配的记录</td></tr>';
+                return;
+            }
+            
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.grade}</td>
+                    <td>${item.id}</td>
+                    <td>${item.name}</td>
+                    <td>${item.advisor1}</td>
+                    <td>${item.advisor2}</td>
+                    <td>${item.title}</td>
+                    <td>${item.direction}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function handleSearch() {
+            filterData();
+        }
+
+        function filterData() {
+            const searchText = document.getElementById('searchInput').value.toLowerCase();
+            const gradeFilter = document.getElementById('gradeFilter').value;
+            const advisorFilter = document.getElementById('advisorFilter').value;
+            const directionFilter = document.getElementById('directionFilter').value;
+            
+            const filteredData = thesisData.filter(item => {
+                const matchesSearch = 
+                    item.grade.toLowerCase().includes(searchText) ||
+                    item.id.toLowerCase().includes(searchText) ||
+                    item.name.toLowerCase().includes(searchText) ||
+                    item.advisor1.toLowerCase().includes(searchText) ||
+                    item.advisor2.toLowerCase().includes(searchText) ||
+                    item.title.toLowerCase().includes(searchText) ||
+                    item.direction.toLowerCase().includes(searchText);
+                
+                const matchesGrade = gradeFilter ? item.grade.includes(gradeFilter) : true;
+                const matchesAdvisor = advisorFilter ? 
+                    (item.advisor1.includes(advisorFilter) || item.advisor2.includes(advisorFilter)) : true;
+                const matchesDirection = directionFilter ? item.direction.includes(directionFilter) : true;
+                
+                return matchesSearch && matchesGrade && matchesAdvisor && matchesDirection;
+            });
+            
+            renderTable(filteredData);
+        }
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('gradeFilter').value = '';
+            document.getElementById('advisorFilter').value = '';
+            document.getElementById('directionFilter').value = '';
+            
+            renderTable(thesisData);
+        }
+
+        function sortData(sortBy) {
+            const sortedData = [...thesisData].sort((a, b) => {
+                if (a[sortBy] < b[sortBy]) return -1;
+                if (a[sortBy] > b[sortBy]) return 1;
+                return 0;
+            });
+            
+            renderTable(sortedData);
+        }
+    </script>
+</body>
+</html>
