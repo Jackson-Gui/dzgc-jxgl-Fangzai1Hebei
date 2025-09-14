@@ -1,0 +1,6 @@
+[build]
+  publish = "aljx"
+  command = "npm run build"  # 添加构建命令
+
+[build.environment]
+  NODE_VERSION = "18"
